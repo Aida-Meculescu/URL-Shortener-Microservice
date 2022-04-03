@@ -16,6 +16,13 @@ const db = mongoose.connection
 db.on("error", error => console.log(error))
 db.once('open', () => console.log('Connected to Mongoose'))
 
+const { Schema } = mongoose;
+const shortUrlSchema = new Schema({
+  originalUrl: String,
+  shortUrl: String,
+});
+const ShortUrl = mongoose.model("ShortUrl", shortUrlSchema);
+
 
 app.use(cors());
 app.use(express.json());
@@ -61,7 +68,7 @@ app.post("/api/shorturl", function (req, res) {
 // redirect shorturl api
 app.get("/api/shorturl/:short_url", function (req, res) {
   const shortParam = req.params.short_url;
-  
+
   const query = ShortUrl.findOne({ shortUrl: shortParam });
   query.select("originalUrl");
 
@@ -72,8 +79,8 @@ app.get("/api/shorturl/:short_url", function (req, res) {
       res.json({ error: 'url not found' });
     } else {
       const redirectUrl = shorturl.originalUrl.match(/^https?:\/\//i) ?
-      shorturl.originalUrl :
-      "https://" + shorturl.originalUrl;
+        shorturl.originalUrl :
+        "https://" + shorturl.originalUrl;
       res.redirect(301, redirectUrl);
     }
   });
